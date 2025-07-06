@@ -16,12 +16,18 @@ class CalculatorViewController: UIViewController {
     @IBOutlet weak var splitNumberLabel: UILabel!
     
     var tip = 0.10
+    var numberOfPeople = 2
+    var billTotal = 0.0
+    var finalResult = "0.0"
+    
     @IBAction func tipChanged(_ sender: UIButton) {
+        billTextField.endEditing(true)
         
         //Deselect all tip buttons via IBOutlets
         zeroPctButton.isSelected = false
         tenPctButton.isSelected = false
         twentyPctButton.isSelected = false
+        sender.isSelected = true
                 
         //Make the button that triggered the IBAction selected.
         sender.isSelected = true
@@ -40,17 +46,33 @@ class CalculatorViewController: UIViewController {
     }
 
     @IBAction func stepperValueChanged(_ sender: UIStepper) {
-        
+        splitNumberLabel.text = String(format: "%.0f", sender.value)
+        numberOfPeople = Int(sender.value)
     }
     
     @IBAction func calculatePressed(_ sender: UIButton) {
-        print(tip)
+        
+        let bill = billTextField.text!
+        
+        if bill != "" {
+            billTotal = Double(bill)!
+            
+            let result = billTotal * (1 + tip) / Double(numberOfPeople)
+            
+            finalResult = String(format: "%.2f", result)
+        }
+        
+        self.performSegue(withIdentifier: "toTheResults", sender: self)
     }
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        // Do any additional setup after loading the view.
-//    }
-
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toTheResults" {
+            let destinationVC = segue.destination as! ResultsViewController
+            destinationVC.result = finalResult
+            destinationVC.tip = Int(tip * 100)
+            destinationVC.split = numberOfPeople
+        }
+    }
 
 }
 
